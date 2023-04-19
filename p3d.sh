@@ -1,14 +1,13 @@
 #!/bin/bash
 
-R='\033[0;31m'
-G='\033[0;32m'
+R='\033[0;31m' # Red
+G='\033[0;32m' # Green
 NC='\033[0m' # No Color
-Y='\033[0;33m'
+Y='\033[0;33m' # Yellow
 echo -e "${Y}This script is used to run all the parameters for mining P3D coin. Below you have all the explanations and
 instructions that you can use either for the solo or pool version. If you choose the solo version, you can generate a
-new address or update an existing one, in which case you must have the memo seed and public key at hand. For the pool
-version, you must have the memo seed and address prepared. I hope this script makes your setup easier and that you will
-be satisfied. You can also donate for further development.${NC}"
+new address or update an existing one, in which case you must have the memo seed at hand. For the pool
+version, you must have the memo seed and address prepared.${NC}"
 echo -e "${R}Do you want to continue? (Y/N)${NC}"
 read -r choice
 #read -p "${R}Do you want to continue? (Y/N)${NC}" choice
@@ -63,7 +62,7 @@ node_version=$(node -v 2>/dev/null)
 
 # Compare Node.js version with the required version (14 in this example)
 if [ -z "$node_version" ] || [ "$(printf '%s\n' "${node_version#v}" "16.0.0" | sort -V | head -n1)" = "${node_version#v}" ]; then
-  echo "Node.js is not installed or version is less than 16.0.0. Installing..."
+  echo -e "${Y}Node.js is not installed or version is less than 16.0.0. Installing...${NC}"
   # Install Node.js using package manager (apt-get for Ubuntu/Debian)
         curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
         apt-get install -y nodejs
@@ -75,7 +74,7 @@ rust_version=$(rustc --version 2>/dev/null)
 
 # Compare Rust version with the required version (1.7 in this example)
 if [ -z "$rust_version" ] || [[ "$rust_version" =~ ([0-9]+\.[0-9]+\.[0-9]+) && ${BASH_REMATCH[1]} < "1.70.0" ]]; then
-  echo "Rust is not installed or version is less "${rust_version#rustc }" than 1.70.0. Installing nightly toolchain and wasm32-unknown-unknown target..."
+  echo -e "${Y}Rust is not installed or version is less "${rust_version#rustc }" than 1.70.0. Installing nightly toolchain and wasm32-unknown-unknown target...${NC}"
   # Install Rust nightly toolchain and wasm32-unknown-unknown target
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain nightly
   source $HOME/.cargo/env
@@ -133,6 +132,7 @@ fi
                 mining_key=$(./target/release/poscan-consensus generate-mining-key --base-path "$BASE_PATH" --chain mainnetSpecRaw.json)
                 echo $mining_key
                 memo_seed=$(echo "$mining_key" | grep "Secret seed" | cut -d ':' -f 2-)
+		# TODO save to the file instead echo in terminal
                 echo -e "${Y}Memo_Seed: $memo_seed${NC}"
                 uri_seed=$(./target/release/poscan-consensus import-mining-key "$memo_seed" --base-path "$BASE_PATH" --chain mainnetSpecRaw.json)
                 public_key=$(echo "$uri_seed" | grep "Public key" | cut -d ':' -f 2-)
@@ -153,7 +153,7 @@ fi
                 grandpa=$(./target/release/poscan-consensus key insert --base-path ~/3dp-chain/ --chain mainnetSpecRaw.json --scheme Ed25519 --suri "$grandpa_key" --key-type gran)
                 echo -e "${G}Grandpa key inserted into the keystore${NC}"
             fi
-            # check path of keystore-a
+            # check path of keystore
             log_file="miner_output.log"
             if [ $(ls -lat $BASE_PATH/chains/3dpass/keystore/ | wc -l) -ge 2 ]; then
                 DEFAULT_MINER_PATH="${PWD}"
@@ -180,7 +180,7 @@ fi
                 echo -e "${R}Miner can not be executed because missing parameters in keystore.${NC}"
             fi
 
-            # Pokreni poscan-consensus s ostalim parametrima
+            # Run poscan-consensus with other parameters
             read -p "Enter number of threads for your node (example: 4): " threads_num
             echo -e "${G} Your node will consume $threads_num threads.${NC}"
             read -p "Enter name for your node which will be showed up on telemetry (example: my_node): " MyNodeName
