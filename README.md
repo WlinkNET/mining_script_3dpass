@@ -2,6 +2,11 @@
 
 This is a simple script for automating the setup and operation of solo mining and mining pool options for 3DPass.
 
+## Notice before installation
+
+Before installation or using this script it is <b>mandatory</b> to register on the desired pool! 
+Complete instruction can be found here: https://3dpass.org/mining_pool.html#join
+
 ## Installation
 
 1. Open a terminal and switch to the root user by running the command `sudo su`.
